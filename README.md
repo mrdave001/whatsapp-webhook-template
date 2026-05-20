@@ -1,123 +1,32 @@
-# WhatsApp Business API Webhook Template
+# WhatsApp Automation Framework: High-Throughput Webhook Implementation
 
-> Production-ready Next.js webhook handler for Meta WhatsApp Business API.
+## 🚀 Overview
+A production-grade communication interface built for the Meta WhatsApp Business API. This framework is designed for high-availability, secure message ingestion, and automated response orchestration, shifting from a simple webhook to a scalable automation layer.
 
-Built by [AppBrewers](https://appbrewers.com/whatsapp-business-automation) — we build AI-powered WhatsApp automation for small businesses.
+## 🛠 Engineering Architecture
+- **Runtime**: Next.js 15 (App Router) optimized for Vercel Edge Runtime to minimize latency.
+- **Security**: Cryptographic signature verification via `x-hub-signature-256` to prevent request spoofing and man-in-the-middle attacks.
+- **Data Flow**: Asynchronous processing of incoming payloads with structured type-safety using TypeScript.
+- **Integration**: Direct integration with Meta Cloud API for real-time bidirectional communication.
 
----
+## 🧠 Technical Implementations
+- **Security Hardening**: Implemented a strict signature validation layer that ensures only authentic Meta payloads are processed, protecting the system from unauthorized external calls.
+- **Edge Optimization**: Designed the webhook handler to run on the Edge, reducing the cold-start penalty and ensuring rapid responses to Meta's heartbeat and message events.
+- **State Persistence**: Architected to integrate with external data stores for conversation history and session management.
 
-## Features
+## ⚡ Core Capabilities
+- **Secure Ingestion**: Validates every request against the Meta App Secret.
+- **Bi-directional Flow**: Seamlessly handles incoming events and triggers outbound API calls.
+- **Type-Safe Payloads**: Full TypeScript definitions for complex Meta webhook JSON structures.
 
-- ✅ Verify webhook signature (security)
-- ✅ Handle incoming messages
-- ✅ Send replies via Meta Cloud API
-- ✅ Store conversation history
-- ✅ TypeScript throughout
-- ✅ Edge-compatible (Vercel)
-
----
-
-## Setup
-
-### 1. Environment Variables
-
-```bash
-META_APP_SECRET=your_app_secret
-META_ACCESS_TOKEN=your_access_token
-META_PHONE_NUMBER_ID=your_phone_number_id
-```
-
-### 2. Deploy to Vercel
-
+## 🏗 Deployment
 ```bash
 vercel --prod
 ```
+Required Environment Variables:
+- `META_APP_SECRET`: App secret from Meta Developer Portal.
+- `META_ACCESS_TOKEN`: System user access token.
+- `META_PHONE_NUMBER_ID`: The specific WhatsApp Business phone ID.
 
-### 3. Configure Webhook URL in Meta Dashboard
-
-```
-https://yourdomain.com/api/whatsapp/webhook
-```
-
----
-
-## Usage
-
-### Receive Messages
-
-```typescript
-// app/api/whatsapp/webhook/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { verifySignature } from './verify';
-
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  
-  // Verify webhook signature
-  const signature = req.headers.get('x-hub-signature-256');
-  if (!verifySignature(body, signature)) {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-  }
-  
-  const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-  if (!message) return NextResponse.json({ status: 'ok' });
-  
-  const from = message.from;
-  const text = message.text?.body;
-  
-  // Your business logic here
-  const reply = generateReply(text);
-  
-  // Send reply
-  await sendMessage(from, reply);
-  
-  return NextResponse.json({ status: 'sent' });
-}
-```
-
-### Send Messages
-
-```typescript
-async function sendMessage(to: string, text: string) {
-  const response = await fetch(
-    `https://graph.facebook.com/v18.0/${process.env.META_PHONE_NUMBER_ID}/messages`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.META_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to,
-        type: 'text',
-        text: { body: text },
-      }),
-    }
-  );
-  return response.json();
-}
-```
-
----
-
-## Complete Guide
-
-Full WhatsApp Business automation setup:
-→ [WhatsApp Business Automation](https://appbrewers.com/whatsapp-business-automation)
-
-AI receptionist built on WhatsApp:
-→ [Conversify](https://conversify.app)
-
-Open-source architecture guide:
-→ [AI Receptionist Guide](https://github.com/AppBrewers/ai-receptionist-guide)
-
-Need help building WhatsApp automation?
-→ [AppBrewers](https://appbrewers.com)
-→ [Get a free quote](https://appbrewers.com/get-a-quote)
-
----
-
-## License
-
-MIT — free for personal and commercial use.
+## 📜 License
+MIT
